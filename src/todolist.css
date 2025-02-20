@@ -14,7 +14,10 @@
   color: var(--input-font-color)!important;
   width: 90%;
   font-size: large;
-  padding-left: 10px;
+  padding-left: 25px;
+}
+.custom-input::placeholder {
+  color: var(--input-font-color)!important;
 }
 
 .custom-to-do-list {
@@ -33,6 +36,7 @@
 }
 .icon-button{
   color: var(--font-color)!important;
+  ;
   
 }
 
@@ -82,7 +86,7 @@
   background-color: var(--header-bg-color)!important;
   border-radius: 100%;
   border: none;
-padding-top: 0px;
+margin-top: 2px;
 }
 .custom-task {
   padding-top: 5px;
@@ -91,7 +95,7 @@ padding-top: 0px;
   margin-bottom: 10px;
   border: 2px solid var(--font-color)!important;
   border-radius: 10px;
-  background-color: var(--task-bg-color) !important;
+  background-color: var(--task-bg-color);
 }
 
 .custom-list {
@@ -129,16 +133,20 @@ padding-top: 0px;
 }
 
 .edit-input {
-  border: none;
+  outline: none;
   background-color: transparent;
   color: var(--font-color)!important;
-  max-width: 85%;
-  height: fit-content;
+border: none;
+  
+  
 }
+
 .edit-input:focus {
-  outline: none;
-  border: 2px solid white;
-  border-radius: 10px;
+  outline: none!important;
+  border: none!important;
+  outline-offset: 0px!important;
+  
+  
 }
 
 .custom-footer {
