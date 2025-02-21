@@ -15,6 +15,7 @@ import { Modal } from "react-bootstrap";
 import { Toast } from "react-bootstrap";
 
 export default function Todolist() {
+  const [Error, setError] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [show, setShow] = useState(false);
   const [colors, setColors] = useState({
@@ -34,7 +35,7 @@ export default function Todolist() {
     { text: "Walk the dog", checked: false, openEdit: false },
     { text: "Go to work", checked: false, openEdit: false },
   ]);
-  const [activeButton, setActiveButton] = useState(1);
+  const [activeButton, setActiveButton] = useState(null);
 
   const teme = {
     tema1: {
@@ -43,7 +44,7 @@ export default function Todolist() {
       task_bg_color: "#00008b",
       font_color: "white",
       input_font_color: "black",
-      task_done_bg_color: "#3fa14c", // Green
+      task_done_bg_color: "#3fa14c",
     },
     tema2: {
       body_bg_color: "#a5d6a7",
@@ -51,15 +52,15 @@ export default function Todolist() {
       task_bg_color: "#c8e6c9",
       font_color: "#1b421e",
       input_font_color: "#a5d6a7",
-      task_done_bg_color: "#4caf50", // Darker Green
+      task_done_bg_color: "#4caf50",
     },
     tema3: {
-      body_bg_color: "#FFCC99", // Peach
-      header_bg_color: "#FF4500", // OrangeRed
-      task_bg_color: "#FFE4B5", // Moccasin
-      font_color: "#8B0000", // Dark Red
-      input_font_color: "#FFCC99", // Peach
-      task_done_bg_color: "#FF6347", // Tomato
+      body_bg_color: "#FFCC99", 
+      header_bg_color: "#FF4500",
+      task_bg_color: "#FFE4B5",
+      font_color: "#8B0000",
+      input_font_color: "#FFCC99",
+      task_done_bg_color: "#FF6347",
     },
     tema4: {
       body_bg_color: "#555555",
@@ -67,9 +68,14 @@ export default function Todolist() {
       task_bg_color: "black",
       font_color: "white",
       input_font_color: "black",
-      task_done_bg_color: "#808080", // Grey
+      task_done_bg_color: "#808080",
     },
   };
+useEffect(() => {
+  setTimeout(() => {
+    setError(false);
+  }, 1000);
+}, [Error]);
 
   useEffect(() => {
     const storedColors = localStorage.getItem("tema");
@@ -95,13 +101,23 @@ export default function Todolist() {
   }
 
   function handleInputChange(e) {
+    if(e.target.value.length !=="")
+    {
     setNewTask({ text: e.target.value, checked: false });
+    }
   }
 
   function HandleAdd() {
+    if(newTask.text.length > 0)
+    {
+      setError(false);
     const newTasks = [...tasks, newTask];
     setTasks(newTasks);
     setNewTask({ text: "", checked: false });
+    }
+    else{
+     setError(true);
+    }
   }
 
   function onChangeCheck(index) {
@@ -242,7 +258,7 @@ export default function Todolist() {
                 </Modal.Body>
               </Modal>
             </div>
-            <h1 className="custom-naslov"> To-do-list</h1>
+            <h1 className="custom-naslov"> To-Do List</h1>
             <div className="custom-counter">
               Tasks Done <br></br> {tasks.filter((task) => task.checked).length}{" "}
               / {tasks.length}
@@ -250,13 +266,16 @@ export default function Todolist() {
           </div>
 
           <div className="custom-body">
+           
             <div className="input-wrap border border-2 border-black rounded-3 py-2 pe-1">
               <input
                 className="custom-input"
                 type="text"
-                placeholder="add new task..."
+                placeholder={`${
+                  Error ? "You need to write something..." : "Enter a task"
+                }`}
                 value={newTask.text}
-                maxLength={25}
+                maxLength={30}
                 onChange={handleInputChange}
               />
               <button
@@ -280,18 +299,23 @@ export default function Todolist() {
                         : "",
                     }}
                   >
+                    <label class="me-2">
+                    
                     <input
                       type="checkbox"
-                      className="me-2"
+                      className=" custom-checkbox"
                       checked={task.checked}
                       onChange={() => onChangeCheck(index)}
                     />
+                    <span class="checkmark mb-1"></span>
+                    
+                    </label>
                     {task.openEdit ? (
                       <input
                         className="edit-input"
                         autoFocus={true}
                         focus
-                        maxLength={25}
+                        maxLength={30}
                         style={{ width: `${(task.text.length + 1) * 10}px` }}
                         value={task.text}
                         onChange={(e) => {
