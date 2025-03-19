@@ -8,7 +8,7 @@ import Todolist from './TodoList.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <div className='d-flex-row m-4 p-4'>
+    <div className='d-flex-row mt-4 hm'>
     <Todolist />
     </div>
   </StrictMode>,

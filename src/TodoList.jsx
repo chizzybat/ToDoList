@@ -1,4 +1,6 @@
-import "./todolist.css";
+import React, { useEffect, useState } from "react";
+import { Modal, Toast } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faTrashCan,
@@ -9,13 +11,13 @@ import {
   faClose,
   faPalette,
 } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
-import { Modal } from "react-bootstrap";
-import { Toast } from "react-bootstrap";
+import confetti from "canvas-confetti";
+import "./todolist.css";
 
 export default function Todolist() {
   const [Error, setError] = useState(false);
+  const [taskError, setTaskError] = useState(false);  
+  const [allChecked, setAllChecked] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [show, setShow] = useState(false);
   const [colors, setColors] = useState({
@@ -36,6 +38,7 @@ export default function Todolist() {
     { text: "Go to work", checked: false, openEdit: false },
   ]);
   const [activeButton, setActiveButton] = useState(null);
+  const [initialValue, setInitialValue] = useState("");
 
   const teme = {
     tema1: {
@@ -45,22 +48,31 @@ export default function Todolist() {
       font_color: "white",
       input_font_color: "black",
       task_done_bg_color: "#3fa14c",
+      bg_texture:
+        "url('https://www.transparenttextures.com/patterns/cubes.png')",
+      page_bg_color: "lightblue",
     },
     tema2: {
       body_bg_color: "#a5d6a7",
-      header_bg_color: "#388e3c",
+      header_bg_color: "rgb(79, 179, 84)",
       task_bg_color: "#c8e6c9",
       font_color: "#1b421e",
       input_font_color: "#a5d6a7",
       task_done_bg_color: "#4caf50",
+      bg_texture:
+        "url('https://www.transparenttextures.com/patterns/batthern.png')",
+        page_bg_color:"rgb(220, 253, 221)",
     },
     tema3: {
-      body_bg_color: "#FFCC99", 
-      header_bg_color: "#FF4500",
+      body_bg_color: "#FFCC99",
+      header_bg_color: "rgb(255, 121, 73)",
       task_bg_color: "#FFE4B5",
       font_color: "#8B0000",
       input_font_color: "#FFCC99",
       task_done_bg_color: "#FF6347",
+      bg_texture:
+        "url('https://www.transparenttextures.com/patterns/batthern.png')",
+        page_bg_color:"rgb(255, 222, 190)",
     },
     tema4: {
       body_bg_color: "#555555",
@@ -69,13 +81,27 @@ export default function Todolist() {
       font_color: "white",
       input_font_color: "black",
       task_done_bg_color: "#808080",
+      bg_texture:
+        "url('https://www.transparenttextures.com/patterns/cubes.png')",
+        page_bg_color:"rgb(170, 170, 170)",
     },
   };
-useEffect(() => {
-  setTimeout(() => {
-    setError(false);
-  }, 1000);
-}, [Error]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (Error) {
+        setError(false);
+      }
+    }, 1000);
+  }, [Error]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (taskError) {
+        setTaskError(false);
+      }
+    }, 1000);
+  }, [taskError]);
 
   useEffect(() => {
     const storedColors = localStorage.getItem("tema");
@@ -96,27 +122,23 @@ useEffect(() => {
   function onClickThemeChange({ tema, button }) {
     const newColors = tema;
     setColors(newColors);
-
     setActiveButton(button);
   }
 
   function handleInputChange(e) {
-    if(e.target.value.length !=="")
-    {
-    setNewTask({ text: e.target.value, checked: false });
+    if (e.target.value.length !== "") {
+      setNewTask({ text: e.target.value, checked: false });
     }
   }
 
   function HandleAdd() {
-    if(newTask.text.length > 0)
-    {
+    if (newTask.text.length > 0) {
       setError(false);
-    const newTasks = [...tasks, newTask];
-    setTasks(newTasks);
-    setNewTask({ text: "", checked: false });
-    }
-    else{
-     setError(true);
+      const newTasks = [...tasks, newTask];
+      setTasks(newTasks);
+      setNewTask({ text: "", checked: false });
+    } else {
+      setError(true);
     }
   }
 
@@ -124,11 +146,17 @@ useEffect(() => {
     const newTasks = [...tasks];
     newTasks[index].checked = !newTasks[index].checked;
     setTasks(newTasks);
+    if (newTasks[index].checked) {
+      confetti({
+        particleCount: 50,
+        startVelocity: 20,
+        spread: 360,
+      });
+    }
   }
 
   function onClickDelete(index) {
     const newTasks = tasks.filter((task, i) => i !== index);
-
     setTasks(newTasks);
   }
 
@@ -138,14 +166,17 @@ useEffect(() => {
       newTasks[i].openEdit = false;
     }
     newTasks[index].openEdit = true;
+    setInitialValue(newTasks[index].text);
     setTasks(newTasks);
   }
 
   function onClickConfirmEdit(index) {
+    if (tasks[index].text.length === 0) {
+      setTaskError(true);
+      return;
+    }
     const newTasks = [...tasks];
-
     newTasks[index].text = newTasks[index].text;
-
     newTasks[index].openEdit = false;
     setTasks(newTasks);
   }
@@ -153,6 +184,27 @@ useEffect(() => {
   function onClickDeleteAll() {
     const newTasks = [];
     setTasks(newTasks);
+  }
+
+  function onClickCompleteAll() {
+    setAllChecked(!allChecked);
+    if (!allChecked) {
+      const newTasks = [...tasks];
+      newTasks.forEach((task) => (task.checked = true));
+      setTasks(newTasks);
+      confetti({
+        spread: 360,
+        particleCount: 300,
+        startVelocity: 30,
+        scalar: 1.2,
+        
+      });
+    }
+    if (allChecked) {
+      const newTasks = [...tasks];
+      newTasks.forEach((task) => (task.checked = false));
+      setTasks(newTasks);
+    }
   }
 
   const handleSave = () => {
@@ -168,7 +220,7 @@ useEffect(() => {
 
   return (
     <div>
-      <div className="custom-area">
+      <div className="custom-area mx-2">
         <div className="custom-to-do-list">
           <div className="custom-header">
             <div className="ms-4">
@@ -223,6 +275,17 @@ useEffect(() => {
                       <button
                         className="theme-button"
                         style={{
+                          backgroundImage: `linear-gradient(to right,${teme.tema4.body_bg_color},  ${teme.tema4.body_bg_color} 50%, ${teme.tema4.header_bg_color} 50%, ${teme.tema4.header_bg_color})`,
+                          boxShadow:
+                            activeButton === 4 ? "0 0 4px 4px grey" : "",
+                        }}
+                        onClick={() =>
+                          onClickThemeChange({ tema: teme.tema4, button: 4 })
+                        }
+                      ></button>
+                      <button
+                        className="theme-button"
+                        style={{
                           backgroundImage: `linear-gradient(to right,${teme.tema2.body_bg_color},  ${teme.tema2.body_bg_color} 50%, ${teme.tema2.header_bg_color} 50%, ${teme.tema2.header_bg_color})`,
                           boxShadow:
                             activeButton === 2 ? "0 0 4px 4px green" : "",
@@ -242,17 +305,6 @@ useEffect(() => {
                           onClickThemeChange({ tema: teme.tema3, button: 3 })
                         }
                       ></button>
-                      <button
-                        className="theme-button"
-                        style={{
-                          backgroundImage: `linear-gradient(to right,${teme.tema4.body_bg_color},  ${teme.tema4.body_bg_color} 50%, ${teme.tema4.header_bg_color} 50%, ${teme.tema4.header_bg_color})`,
-                          boxShadow:
-                            activeButton === 4 ? "0 0 4px 4px grey" : "",
-                        }}
-                        onClick={() =>
-                          onClickThemeChange({ tema: teme.tema4, button: 4 })
-                        }
-                      ></button>
                     </div>
                   </div>
                 </Modal.Body>
@@ -266,90 +318,114 @@ useEffect(() => {
           </div>
 
           <div className="custom-body">
-           
-            <div className="input-wrap border border-2 border-black rounded-3 py-2 pe-1">
-              <input
-                className="custom-input"
-                type="text"
-                placeholder={`${
-                  Error ? "You need to write something..." : "Enter a task"
-                }`}
-                value={newTask.text}
-                maxLength={30}
-                onChange={handleInputChange}
-              />
-              <button
-                className="add-button float-end icon-button"
-                onClick={HandleAdd}
-              >
-                <FontAwesomeIcon icon={faPlus} />
-              </button>
+            <div className="d-flex input-wrap border border-2 border-black rounded-3 py-2 pe-1">
+              <div className="d-flex-row flex-grow-1">
+                <input
+                  className="custom-input"
+                  type="text"
+                  placeholder={`${
+                    Error ? "You need to write something..." : "Enter a task"
+                  }`}
+                  value={newTask.text}
+                  maxLength={25}
+                  onChange={handleInputChange}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      HandleAdd();
+                    }
+                    if (e.key === "Escape") {
+                      setNewTask({ text: "", checked: false });
+                    }
+                  }}
+                />
+              </div>
+              <div className="d-flex-row">
+                <button
+                  className="add-button float-end icon-button"
+                  onClick={HandleAdd}
+                >
+                  <FontAwesomeIcon icon={faPlus} />
+                </button>
+              </div>
             </div>
             {tasks.length !== 0 ? (
               <div className={`custom-list d-flex-column text-start `}>
                 {tasks.map((task, index) => (
                   <div
                     key={index}
-                    className={`custom-task d-flex-row ${
-                      task.checked ? "text-decoration-line-through" : ""
+                    className={`custom-task d-flex ${
+                      task.checked ? "text-decoration-line-through checked-bg" : ""
                     }`}
-                    style={{
-                      backgroundColor: task.checked
-                        ? colors.task_done_bg_color
-                        : "",
-                    }}
+                  
                   >
-                    <label class="me-2">
-                    
-                    <input
-                      type="checkbox"
-                      className=" custom-checkbox"
-                      checked={task.checked}
-                      onChange={() => onChangeCheck(index)}
-                    />
-                    <span class="checkmark mb-1"></span>
-                    
-                    </label>
-                    {task.openEdit ? (
+                    <label class="me-2 d-flex-row flex-grow-0">
                       <input
-                        className="edit-input"
-                        autoFocus={true}
-                        focus
-                        maxLength={30}
-                        style={{ width: `${(task.text.length + 1) * 10}px` }}
-                        value={task.text}
-                        onChange={(e) => {
-                          const newTasks = [...tasks];
-
-                          newTasks[index].text = e.target.value;
-                          setTasks(newTasks);
-                        }}
+                        type="checkbox"
+                        className=" custom-checkbox"
+                        checked={task.checked}
+                        onChange={() => onChangeCheck(index)}
                       />
-                    ) : (
-                      task.text
-                    )}
+                      <span class="checkmark mb-1"></span>
+                    </label>
+                    <div className="d-flex-row flex-grow-1">
+                      {task.openEdit ? (
+                        <input
+                        placeholder={`${
+                          taskError ? "You need to write something..." : "Enter new task name..."
+                        }`}
+                          className="edit-input"
+                          autoFocus={true}
+                          focus
+                          defaultValue={task.text}
+                          maxLength={25}
+                          value={task.text}
+                          onChange={(e) => {
+                            const newTasks = [...tasks];
+                            newTasks[index].text = e.target.value;
+                            setTasks(newTasks);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              onClickConfirmEdit(index);
+                            }
+                            if (e.key === "Escape") {
+                              const newTasks = [...tasks];
+                              newTasks[index].openEdit = false;
+                              newTasks[index].text = initialValue;
+                              setTasks(newTasks);
+                            }
+                          }}
+                        />
+                      ) : (
+                        task.text
+                      )}
+                    </div>
 
-                    <button
-                      className="float-end bg-transparent p-0 border-0 me-1 icon-button"
-                      onClick={() => onClickDelete(index)}
-                    >
-                      <FontAwesomeIcon icon={faTrashCan} />
-                    </button>
-                    {!task.openEdit ? (
+                    <div className="d-flex-row flex-grow-0">
+                      {!task.openEdit ? (
+                        <button
+                          className="float-end bg-transparent p-0 border-0 me-1 icon-button"
+                          onClick={() => onClickOpenEdit(index)}
+                        >
+                          <FontAwesomeIcon icon={faPenToSquare} />
+                        </button>
+                      ) : (
+                        <button
+                          className="float-end bg-transparent p-0 border-0 me-1 ms-1 icon-button"
+                          onClick={() => onClickConfirmEdit(index)}
+                        >
+                          <FontAwesomeIcon icon={faCheck} />
+                        </button>
+                      )}
+                    </div>
+                    <div className="d-flex-row flex-grow-0">
                       <button
-                        className="float-end bg-transparent p-0 border-0 me-1 icon-button"
-                        onClick={() => onClickOpenEdit(index)}
+                        className="float-end bg-transparent p-0 border-0 me-2 icon-button"
+                        onClick={() => onClickDelete(index)}
                       >
-                        <FontAwesomeIcon icon={faPenToSquare} />
+                        <FontAwesomeIcon icon={faTrashCan} />
                       </button>
-                    ) : (
-                      <button
-                        className="float-end bg-transparent p-0 border-0 me-1 icon-button"
-                        onClick={() => onClickConfirmEdit(index)}
-                      >
-                        <FontAwesomeIcon icon={faCheck} />
-                      </button>
-                    )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -359,12 +435,21 @@ useEffect(() => {
             {tasks.length === 0 ? (
               <p className="text-center pt-5">No tasks</p>
             ) : (
-              <button
-                className="deleteall-button"
-                onClick={() => onClickDeleteAll()}
-              >
-                Delete all
-              </button>
+              <div className="d-flex gap-3">
+                <button
+                  className="complete-button"
+                  onClick={() => onClickCompleteAll()}
+                  style={{ backgroundColor: !allChecked ? "green" : "" }}
+                >
+                  {!allChecked ? "Complete all" : "Uncomplete all"}
+                </button>
+                <button
+                  className="deleteall-button"
+                  onClick={() => onClickDeleteAll()}
+                >
+                  Delete all
+                </button>
+              </div>
             )}
             <div className="custom-footer">
               copyright @2025 | made by Chizzy
