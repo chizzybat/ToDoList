@@ -10,13 +10,14 @@ import {
   faSave,
   faClose,
   faPalette,
+  faCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import confetti from "canvas-confetti";
 import "./todolist.css";
 
 export default function Todolist() {
   const [Error, setError] = useState(false);
-  const [taskError, setTaskError] = useState(false);  
+  const [taskError, setTaskError] = useState(false);
   const [allChecked, setAllChecked] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [show, setShow] = useState(false);
@@ -61,7 +62,7 @@ export default function Todolist() {
       task_done_bg_color: "#4caf50",
       bg_texture:
         "url('https://www.transparenttextures.com/patterns/batthern.png')",
-        page_bg_color:"rgb(220, 253, 221)",
+      page_bg_color: "rgb(220, 253, 221)",
     },
     tema3: {
       body_bg_color: "#FFCC99",
@@ -72,7 +73,7 @@ export default function Todolist() {
       task_done_bg_color: "#FF6347",
       bg_texture:
         "url('https://www.transparenttextures.com/patterns/batthern.png')",
-        page_bg_color:"rgb(255, 222, 190)",
+      page_bg_color: "rgb(255, 222, 190)",
     },
     tema4: {
       body_bg_color: "#555555",
@@ -83,7 +84,7 @@ export default function Todolist() {
       task_done_bg_color: "#808080",
       bg_texture:
         "url('https://www.transparenttextures.com/patterns/cubes.png')",
-        page_bg_color:"rgb(170, 170, 170)",
+      page_bg_color: "rgb(170, 170, 170)",
     },
   };
 
@@ -197,7 +198,6 @@ export default function Todolist() {
         particleCount: 300,
         startVelocity: 30,
         scalar: 1.2,
-        
       });
     }
     if (allChecked) {
@@ -340,11 +340,11 @@ export default function Todolist() {
                 />
               </div>
               <div className="d-flex-row">
-                <button
-                  className="add-button float-end icon-button"
-                  onClick={HandleAdd}
-                >
-                  <FontAwesomeIcon icon={faPlus} />
+                <button className="add-button" onClick={HandleAdd}>
+                  <span className="fa-layers">
+                    <FontAwesomeIcon icon={faCircle} className="add" />
+                    <FontAwesomeIcon icon={faPlus} className="plus" />
+                  </span>
                 </button>
               </div>
             </div>
@@ -354,9 +354,10 @@ export default function Todolist() {
                   <div
                     key={index}
                     className={`custom-task d-flex ${
-                      task.checked ? "text-decoration-line-through checked-bg" : ""
+                      task.checked
+                        ? "text-decoration-line-through checked-bg"
+                        : ""
                     }`}
-                  
                   >
                     <label class="me-2 d-flex-row flex-grow-0">
                       <input
@@ -370,9 +371,11 @@ export default function Todolist() {
                     <div className="d-flex-row flex-grow-1">
                       {task.openEdit ? (
                         <input
-                        placeholder={`${
-                          taskError ? "You need to write something..." : "Enter new task name..."
-                        }`}
+                          placeholder={`${
+                            taskError
+                              ? "You need to write something..."
+                              : "Enter new task name..."
+                          }`}
                           className="edit-input"
                           autoFocus={true}
                           focus
